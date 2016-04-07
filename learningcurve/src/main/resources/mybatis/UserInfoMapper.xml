@@ -42,7 +42,8 @@
     delete from user_info
     where id = #{id,jdbcType=INTEGER}
   </delete>
-    <insert id="insert" parameterType="com.arthas.learningcurve.model.UserInfo" useGeneratedKeys="true" keyProperty="id">
+    <insert id="insert" parameterType="com.arthas.learningcurve.model.UserInfo" useGeneratedKeys="true"
+            keyProperty="id">
     insert into user_info (id, gender, mobile, 
       password, nickName, signature, 
       userIcon, realName, cardNumber, 

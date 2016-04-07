@@ -50,6 +50,16 @@ public class BaseController {
             e.printStackTrace();
         }
     }
+    protected void sendSuccess(BaseResp resp,String message) {
+        try {
+            resp.setCode(ResultCode.SUCCESS);
+            resp.setMessage(message);
+            sendJSON(resp);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
 
 
     private void sendJSON(Object obj) {
