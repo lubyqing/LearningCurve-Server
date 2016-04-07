@@ -23,7 +23,6 @@ public class UserController extends BaseController{
     @Autowired
     private UserService userService;
 
-
     @RequestMapping(value = "/login")
     public void login(LoginReq loginReq){
         LoginResp resp = new LoginResp();
