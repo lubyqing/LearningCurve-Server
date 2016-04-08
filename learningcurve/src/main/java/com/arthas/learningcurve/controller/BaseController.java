@@ -1,8 +1,15 @@
 package com.arthas.learningcurve.controller;
 
 import com.alibaba.fastjson.JSON;
+import com.arthas.learningcurve.common.Constant;
 import com.arthas.learningcurve.common.ResultCode;
+import com.arthas.learningcurve.domain.BaseReq;
 import com.arthas.learningcurve.domain.BaseResp;
+import com.arthas.learningcurve.domain.Token;
+import com.arthas.learningcurve.model.TokenInfo;
+import com.arthas.learningcurve.service.TokenService;
+import org.apache.commons.lang.StringUtils;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.ModelAttribute;
 
 import javax.servlet.http.HttpServletRequest;
@@ -22,6 +29,9 @@ public class BaseController {
     protected HttpServletRequest request;
     protected HttpServletResponse response;
     protected HttpSession session;
+
+    @Autowired
+    protected TokenService tokenService;
 
     @ModelAttribute
     public void setReqAndRes(HttpServletRequest request, HttpServletResponse response) {
@@ -77,6 +87,28 @@ public class BaseController {
                 e.printStackTrace();
             }
         }
+    }
+
+    protected boolean validateToke(BaseReq baseReq){
+        Token token = baseReq.getToken();
+        if (token == null || StringUtils.isEmpty(token.getUserId()) || token.getLoginTime() == 0) {
+            sendError(ResultCode.BUSINESS_FAILED, "Token为空");
+            return false;
+        }
+
+        TokenInfo tokenInfo = tokenService.selectByUserId(Integer.valueOf(token.getUserId()));
+        if (tokenInfo == null || Long.parseLong(tokenInfo.getLogintime()) != token.getLoginTime()){
+            sendError(ResultCode.BUSINESS_FAILED, "无效用户，请重新登录");
+            return false;
+        }
+
+        if (System.currentTimeMillis() - token.getLoginTime() > Constant.TOKEN_PERIOD) {
+            tokenService.deleteTokenByUserId(Integer.valueOf(token.getUserId()));
+            sendError(ResultCode.BUSINESS_FAILED, "Token失效，请重新登录");
+            return false;
+        }
+
+        return true;
     }
 
 }

@@ -11,4 +11,6 @@ public interface UserService {
     UserInfo getUserByMobile(String mobile);
 
     void addUser(UserInfo userInfo);
+
+    int modifyUser(UserInfo userInfo);
 }

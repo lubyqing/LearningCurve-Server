@@ -1,9 +1,9 @@
 package com.arthas.learningcurve.controller;
 
-import com.arthas.learningcurve.common.Constant;
 import com.arthas.learningcurve.common.InitAction;
 import com.arthas.learningcurve.common.ResultCode;
 import com.arthas.learningcurve.domain.*;
+import com.arthas.learningcurve.model.TokenInfo;
 import com.arthas.learningcurve.model.UserInfo;
 import com.arthas.learningcurve.service.UserService;
 import org.apache.commons.lang.StringUtils;
@@ -49,36 +49,102 @@ public class UserController extends BaseController {
             userService.addUser(userInfo);
         }
 
-        Token token = new Token();
-        token.setLoginTime(System.currentTimeMillis());
-        token.setUserId(userInfo.getId() + "");
-        resp.setToken(token);
+        Long loginTime = System.currentTimeMillis();
+        String userId = userInfo.getId() + "";
 
-        sendSuccess(resp,"登录成功");
+        tokenService.deleteTokenByUserId(Integer.valueOf(userId));
+        TokenInfo tokenInfo = new TokenInfo();
+        tokenInfo.setUserid(Integer.valueOf(userId));
+        tokenInfo.setLogintime(String.valueOf(loginTime));
+        tokenService.addToken(tokenInfo);
+
+        Token token = new Token(userId, loginTime);
+        resp.setToken(token);
+        sendSuccess(resp, "登录成功");
     }
 
     @RequestMapping(value = "/autoLogin")
     public void autoLogin(BaseReq baseReq) {
-        Token token = baseReq.getToken();
-        if (token == null) {
-            sendError(ResultCode.BUSINESS_FAILED, "Token为空");
+        if (!validateToke(baseReq)) {
             return;
         }
 
-        UserInfo userInfo = userService.getUserById(Integer.parseInt(token.getUserId()));
-        if (userInfo == null) {
-            sendError(ResultCode.BUSINESS_FAILED, "用户不存在，请重新登录");
+        sendSuccess(new BaseResp(), "登录成功");
+
+    }
+
+    @RequestMapping(value = "/logout")
+    public void logout(BaseReq baseReq) {
+        if (!validateToke(baseReq)) {
             return;
         }
 
-        if (System.currentTimeMillis() - token.getLoginTime() > Constant.TOKEN_PERIOD) {
-            sendError(ResultCode.BUSINESS_FAILED,"Token失效，请重新登录");
+        tokenService.deleteTokenByUserId(Integer.valueOf(baseReq.getToken().getUserId()));
+        sendSuccess(new BaseResp(), "注销成功");
+    }
+
+    @RequestMapping("/modifyUserInfo")
+    public void modifyUserInfo(BaseUserInfoReq req) {
+        if (!validateToke(req)) {
             return;
         }
 
-        BaseResp resp = new BaseResp();
-        sendSuccess(resp,"登录成功");
+        UserInfo userInfo = new UserInfo();
+        userInfo.setId(Integer.valueOf(req.getToken().getUserId()));
+        userInfo.setNickname(req.getUserInfo().getNickName());
+        userInfo.setGender(req.getUserInfo().getGender());
+        userInfo.setSignature(req.getUserInfo().getSignature());
+        userInfo.setUsericon(req.getUserInfo().getUserIcon());
+        userInfo.setRealname(req.getUserInfo().getRealName());
+        userInfo.setCardnumber(req.getUserInfo().getCardNumber());
 
+        int result = userService.modifyUser(userInfo);
+
+        if (result > 0) {
+            BaseUserInfoResp resp = new BaseUserInfoResp();
+            UserInfo userInfoModified = userService.getUserById(Integer.valueOf(req.getToken().getUserId()));
+
+            BaseUserInfo baseUserInfo = new BaseUserInfo();
+            baseUserInfo.setId(userInfoModified.getId());
+            baseUserInfo.setMobile(userInfoModified.getMobile());
+            baseUserInfo.setNickName(userInfoModified.getNickname());
+            baseUserInfo.setGender(userInfoModified.getGender());
+            baseUserInfo.setSignature(userInfoModified.getSignature());
+            baseUserInfo.setUserIcon(userInfoModified.getUsericon());
+            baseUserInfo.setRealName(userInfoModified.getRealname());
+            baseUserInfo.setCardNumber(userInfoModified.getCardnumber());
+
+            resp.setUserInfo(baseUserInfo);
+            sendSuccess(resp, "修改用户信息成功");
+        } else {
+            sendError(ResultCode.ERROR_SERVER, "修改用户信息失败");
+        }
+    }
+
+    @RequestMapping("/queryUserInfo")
+    public void queryUserInfo(BaseReq req) {
+        if (!validateToke(req)) {
+            return;
+        }
+        UserInfo userInfo = userService.getUserById(Integer.valueOf(req.getToken().getUserId()));
+        if (userInfo!= null) {
+            BaseUserInfoResp resp = new BaseUserInfoResp();
+
+            BaseUserInfo baseUserInfo = new BaseUserInfo();
+            baseUserInfo.setId(userInfo.getId());
+            baseUserInfo.setMobile(userInfo.getMobile());
+            baseUserInfo.setNickName(userInfo.getNickname());
+            baseUserInfo.setGender(userInfo.getGender());
+            baseUserInfo.setSignature(userInfo.getSignature());
+            baseUserInfo.setUserIcon(userInfo.getUsericon());
+            baseUserInfo.setRealName(userInfo.getRealname());
+            baseUserInfo.setCardNumber(userInfo.getCardnumber());
+
+            resp.setUserInfo(baseUserInfo);
+            sendSuccess(resp, "查询用户信息成功");
+        }else {
+            sendError(ResultCode.BUSINESS_FAILED,"查询用户失败");
+        }
     }
 
     /**

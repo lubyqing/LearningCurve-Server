@@ -27,4 +27,8 @@ public class UserServiceImpl implements UserService {
     public void addUser(UserInfo userInfo) {
         userInfoMapper.insert(userInfo);
     }
+
+    public int modifyUser(UserInfo userInfo) {
+        return userInfoMapper.updateByPrimaryKeySelective(userInfo);
+    }
 }

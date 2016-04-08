@@ -8,6 +8,14 @@ public class Token {
     private long loginTime;
     private String secretkey;
 
+    public Token() {
+    }
+
+    public Token(String userId, long loginTime) {
+        this.userId = userId;
+        this.loginTime = loginTime;
+    }
+
     public String getUserId() {
         return userId;
     }

@@ -162,7 +162,7 @@
         </set>
         where id = #{id,jdbcType=INTEGER}
     </update>
-    <update id="updateByPrimaryKeyWithBLOBs" parameterType="com.arthas.learningcurve.model.UserInfo">
+    <update id="updateByPrimaryKey" parameterType="com.arthas.learningcurve.model.UserInfo">
     update user_info
     set gender = #{gender,jdbcType=INTEGER},
       mobile = #{mobile,jdbcType=LONGVARCHAR},
@@ -174,11 +174,6 @@
       cardNumber = #{cardnumber,jdbcType=LONGVARCHAR},
       desc1 = #{desc1,jdbcType=LONGVARCHAR},
       desc2 = #{desc2,jdbcType=LONGVARCHAR}
-    where id = #{id,jdbcType=INTEGER}
-  </update>
-    <update id="updateByPrimaryKey" parameterType="com.arthas.learningcurve.model.UserInfo">
-    update user_info
-    set gender = #{gender,jdbcType=INTEGER}
     where id = #{id,jdbcType=INTEGER}
   </update>
 </mapper>
