@@ -9,6 +9,14 @@ public class BaseResp implements Serializable{
     protected int code;
     protected String message;
 
+    public BaseResp() {
+    }
+
+    public BaseResp(int code, String message) {
+        this.code = code;
+        this.message = message;
+    }
+
     public int getCode() {
         return code;
     }

@@ -11,7 +11,10 @@ import com.arthas.learningcurve.service.UserService;
 import org.apache.commons.lang.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.ResponseBody;
 
 import java.io.PrintWriter;
 
@@ -25,22 +28,27 @@ public class SmsController extends BaseController {
     @Autowired
     private SmsService smsService;
 
-    @RequestMapping(value = "/getLoginSms")
-    public void getLoginSms(GetLoginSmsReq req) {
+    @RequestMapping(value = "/getLoginSms",method = RequestMethod.POST)
+    public @ResponseBody BaseResp getLoginSms(@RequestBody GetLoginSmsReq req) {
         if (!validateReq(req)) {
-            sendError(ResultCode.BUSINESS_FAILED, "手机号为空");
-            return;
+//            sendError(ResultCode.BUSINESS_FAILED, "手机号为空");
+            return new BaseResp(ResultCode.BUSINESS_FAILED,"手机号为空");
         }
 
         smsService.sendLoginSms(req.getMobile());
 
         //todo Here is Successful,for print message,call sendError
-        sendError(ResultCode.SUCCESS,
-                "验证码发送成功，手机号："
+
+        return new BaseResp(ResultCode.SUCCESS,"验证码发送成功，手机号："
                 + req.getMobile()
                 + ",验证码为："
-                + InitAction.getMobileToSmsMap().get(req.getMobile()))
-        ;
+                + InitAction.getMobileToSmsMap().get(req.getMobile()));
+//        sendError(ResultCode.SUCCESS,
+//                "验证码发送成功，手机号："
+//                + req.getMobile()
+//                + ",验证码为："
+//                + InitAction.getMobileToSmsMap().get(req.getMobile()))
+//        ;
 
 
     }
