@@ -9,7 +9,9 @@ import com.arthas.learningcurve.service.UserService;
 import org.apache.commons.lang.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
 
 
 /**
@@ -22,9 +24,8 @@ public class UserController extends BaseController {
     @Autowired
     private UserService userService;
 
-    @RequestMapping(value = "/login")
-    public void login(LoginReq loginReq) {
-        LoginResp resp = new LoginResp();
+    @RequestMapping(value = "/login",method = RequestMethod.POST)
+    public void login(@RequestBody LoginReq loginReq) {
         if (!validateLoginInfo(loginReq)) {
             sendError(ResultCode.BUSINESS_FAILED, "手机号为空");
             return;
@@ -58,6 +59,7 @@ public class UserController extends BaseController {
         tokenInfo.setLogintime(String.valueOf(loginTime));
         tokenService.addToken(tokenInfo);
 
+        LoginResp resp = new LoginResp();
         Token token = new Token(userId, loginTime);
         resp.setToken(token);
         sendSuccess(resp, "登录成功");
