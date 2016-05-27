@@ -34,51 +34,31 @@ public class SmsController extends BaseController {
     @Autowired
     private SmsService smsService;
 
-    @RequestMapping(value = "/getLoginSms")
+    @RequestMapping(value = "/getLoginSms",method = RequestMethod.POST)
     public @ResponseBody BaseResp getLoginSms(@RequestBody GetLoginSmsReq req) {
         if (!validateReq(req)) {
 //            sendError(ResultCode.BUSINESS_FAILED, "手机号为空");
             return new BaseResp(ResultCode.BUSINESS_FAILED,"手机号为空");
         }
 
-        smsService.sendLoginSms(req.getMobile());
+        AlibabaAliqinFcSmsNumSendResponse response = smsService.sendLoginSms(req.getMobile());
+        int resultCode = ResultCode.SUCCESS;
+        String respMsg = "验证码发送成功，请注意查收";
+        if (!"0".equals(response.getErrorCode())){
+            resultCode = ResultCode.BUSINESS_FAILED;
+            respMsg ="验证码发送失败，"+ response.getSubMsg();
+        }
 
-        //todo Here is Successful,for print message,call sendError
-        sendSms(req.getMobile());
+        return new BaseResp(resultCode,respMsg);
 
-        return new BaseResp(ResultCode.SUCCESS,"验证码发送成功，手机号："
-                + req.getMobile()
-                + ",验证码为："
-                + InitAction.getMobileToSmsMap().get(req.getMobile()));
-//        sendError(ResultCode.SUCCESS,
-//                "验证码发送成功，手机号："
+//        return new BaseResp(ResultCode.SUCCESS,"验证码发送成功，手机号："
 //                + req.getMobile()
 //                + ",验证码为："
-//                + InitAction.getMobileToSmsMap().get(req.getMobile()))
-//        ;
+//                + InitAction.getMobileToSmsMap().get(req.getMobile()));
 
 
     }
 
-    private void sendSms(String phoneNumber) {
-        TaobaoClient
-                client = new DefaultTaobaoClient(Constant.TAOBAO_SERVER_URL, Constant.TAOBAO_APP_KEY, Constant.TAOBAO_APP_SECRET);
-        AlibabaAliqinFcSmsNumSendRequest
-                req = new AlibabaAliqinFcSmsNumSendRequest();
-        req.setSmsType("normal");
-        req.setSmsFreeSignName("学习曲线");
-        req.setSmsParamString("{\"code\":\"1234\",\"product\":\"alidayu\"}");
-        req.setRecNum(phoneNumber);
-        req.setSmsTemplateCode("SMS_10205238");
-        AlibabaAliqinFcSmsNumSendResponse rsp = null;
-        try {
-            rsp = client.execute(req);
-        }
-        catch (ApiException e) {
-            e.printStackTrace();
-        }
-        System.out.println(rsp.getBody());
-    }
 
     private boolean validateReq(GetLoginSmsReq req) {
         // todo validate
