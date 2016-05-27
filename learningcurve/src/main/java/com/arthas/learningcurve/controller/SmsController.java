@@ -28,7 +28,7 @@ public class SmsController extends BaseController {
     @Autowired
     private SmsService smsService;
 
-    @RequestMapping(value = "/getLoginSms",method = RequestMethod.POST)
+    @RequestMapping(value = "/getLoginSms")
     public @ResponseBody BaseResp getLoginSms(@RequestBody GetLoginSmsReq req) {
         if (!validateReq(req)) {
 //            sendError(ResultCode.BUSINESS_FAILED, "手机号为空");

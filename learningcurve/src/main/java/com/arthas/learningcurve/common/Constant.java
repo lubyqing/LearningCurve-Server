@@ -14,4 +14,9 @@ public class Constant {
     public interface ErrorMessage{
         String NETWORK_ERROR = "服务器出错";
     }
+
+    public static final int CATEGORY_LEVEL_ONE = 1;
+    public static final int CATEGORY_LEVEL_TWO = 2;
+    public static final int CATEGORY_LEVEL_THREE = 3;
+
 }

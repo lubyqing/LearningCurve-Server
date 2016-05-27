@@ -11,6 +11,12 @@
     <context:component-scan base-package="com.arthas.learningcurve.controller"/>
     <mvc:default-servlet-handler/>
     <mvc:annotation-driven/>
+    <mvc:interceptors>
+            <mvc:interceptor>
+                <mvc:mapping path="/*"/>
+                <bean class="com.arthas.learningcurve.interceptor.TokenInterceptor"/>
+            </mvc:interceptor>
+    </mvc:interceptors>
 
     <bean class="org.springframework.web.servlet.view.InternalResourceViewResolver" id="internalResourceViewResolver">
         <property name="prefix" value="/WEB-INF/jsp/"/>

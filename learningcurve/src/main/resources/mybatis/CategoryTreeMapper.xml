@@ -1,0 +1,136 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.arthas.learningcurve.dao.CategoryTreeMapper">
+    <resultMap id="BaseResultMap" type="com.arthas.learningcurve.model.CategoryTreeInfo">
+        <id column="id" property="id" jdbcType="INTEGER"/>
+        <result column="icon_color" property="iconColor" jdbcType="INTEGER"/>
+        <result column="category_level" property="level" jdbcType="INTEGER"/>
+        <result column="parent_id" property="parentId" jdbcType="INTEGER"/>
+        <result column="user_id" property="userId" jdbcType="INTEGER"/>
+        <result column="icon_font" property="iconFont" jdbcType="LONGVARCHAR"/>
+        <result column="category_name" property="categoryName" jdbcType="LONGVARCHAR"/>
+    </resultMap>
+    <sql id="Base_Column_List">
+    id, icon_color, category_level, parent_id
+  </sql>
+    <sql id="Blob_Column_List">
+    icon_font, category_name
+  </sql>
+    <select id="selectByPrimaryKey" resultMap="BaseResultMap" parameterType="java.lang.Integer">
+        select
+        <include refid="Base_Column_List"/>
+        ,
+        <include refid="Blob_Column_List"/>
+        from category_tree
+        where id = #{id,jdbcType=INTEGER}
+    </select>
+
+    <select id="selectAll" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List"/>
+        ,
+        <include refid="Blob_Column_List"/>
+        from category_tree
+        where category_level = 1
+    </select>
+    <delete id="deleteByPrimaryKey" parameterType="java.lang.Integer">
+    delete from category_tree
+    where id = #{id,jdbcType=INTEGER}
+  </delete>
+    <insert id="insert" parameterType="com.arthas.learningcurve.model.CategoryTreeInfo" useGeneratedKeys="true"
+            keyProperty="id">
+    insert into category_tree (id, icon_color, category_level,
+      parent_id, icon_font, category_name,user_id
+      )
+    values (#{id,jdbcType=INTEGER}, #{iconColor,jdbcType=INTEGER}, #{level,jdbcType=INTEGER}, 
+      #{parentId,jdbcType=INTEGER}, #{iconFont,jdbcType=LONGVARCHAR}, #{categoryName,jdbcType=LONGVARCHAR},
+      #{userId,jdbcType=INTEGER}
+      )
+  </insert>
+    <insert id="insertSelective" parameterType="com.arthas.learningcurve.model.CategoryTreeInfo">
+        insert into category_tree
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="id != null">
+                id,
+            </if>
+            <if test="iconColor != null">
+                icon_color,
+            </if>
+            <if test="level != null">
+                level,
+            </if>
+            <if test="parentId != null">
+                parent_id,
+            </if>
+            <if test="iconFont != null">
+                icon_font,
+            </if>
+            <if test="categoryName != null">
+                category_name,
+            </if>
+            <if test="userId != null">
+                user_id,
+            </if>
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="id != null">
+                #{id,jdbcType=INTEGER},
+            </if>
+            <if test="iconColor != null">
+                #{iconColor,jdbcType=INTEGER},
+            </if>
+            <if test="level != null">
+                #{level,jdbcType=INTEGER},
+            </if>
+            <if test="parentId != null">
+                #{parentId,jdbcType=INTEGER},
+            </if>
+            <if test="iconFont != null">
+                #{iconFont,jdbcType=LONGVARCHAR},
+            </if>
+            <if test="categoryName != null">
+                #{categoryName,jdbcType=LONGVARCHAR},
+            </if>
+            <if test="userId != null">
+                #{userId,jdbcType=LONGVARCHAR},
+            </if>
+        </trim>
+    </insert>
+    <update id="updateByPrimaryKeySelective" parameterType="com.arthas.learningcurve.model.CategoryTreeInfo">
+        update category_tree
+        <set>
+            <if test="iconColor != null">
+                icon_color = #{iconColor,jdbcType=INTEGER},
+            </if>
+            <if test="level != null">
+                level = #{level,jdbcType=INTEGER},
+            </if>
+            <if test="parentId != null">
+                parent_id = #{parentId,jdbcType=INTEGER},
+            </if>
+            <if test="iconFont != null">
+                icon_font = #{iconFont,jdbcType=LONGVARCHAR},
+            </if>
+            <if test="categoryName != null">
+                category_name = #{categoryName,jdbcType=LONGVARCHAR},
+            </if>
+        </set>
+        where id = #{id,jdbcType=INTEGER}
+    </update>
+    <update id="updateByPrimaryKeyWithBLOBs" parameterType="com.arthas.learningcurve.model.CategoryTreeInfo">
+    update category_tree
+    set icon_color = #{iconColor,jdbcType=INTEGER},
+      level = #{level,jdbcType=INTEGER},
+      parent_id = #{parentId,jdbcType=INTEGER},
+      icon_font = #{iconFont,jdbcType=LONGVARCHAR},
+      category_name = #{categoryName,jdbcType=LONGVARCHAR}
+    where id = #{id,jdbcType=INTEGER}
+  </update>
+    <update id="updateByPrimaryKey" parameterType="com.arthas.learningcurve.model.CategoryTreeInfo">
+    update category_tree
+    set icon_color = #{iconColor,jdbcType=INTEGER},
+      level = #{level,jdbcType=INTEGER},
+      parent_id = #{parentId,jdbcType=INTEGER}
+    where id = #{id,jdbcType=INTEGER}
+  </update>
+</mapper>

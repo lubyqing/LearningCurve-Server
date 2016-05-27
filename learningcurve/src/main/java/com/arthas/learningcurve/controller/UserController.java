@@ -12,6 +12,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.ResponseBody;
 
 
 /**
@@ -25,21 +26,18 @@ public class UserController extends BaseController {
     private UserService userService;
 
     @RequestMapping(value = "/login",method = RequestMethod.POST)
-    public void login(@RequestBody LoginReq loginReq) {
+    public @ResponseBody LoginResp login(@RequestBody LoginReq loginReq) {
         if (!validateLoginInfo(loginReq)) {
-            sendError(ResultCode.BUSINESS_FAILED, "手机号为空");
-            return;
+            return new LoginResp(ResultCode.BUSINESS_FAILED,"手机号为空");
         }
 
         //验证短信码
         String smsCode = InitAction.getMobileToSmsMap().get(loginReq.getMobile());
         if (StringUtils.isEmpty(smsCode)) {
-            sendError(ResultCode.BUSINESS_FAILED, "手机号错误，没有找到短信码");
-            return;
+            return new LoginResp(ResultCode.BUSINESS_FAILED,"手机号错误，没有找到短信码");
         }
         if (!smsCode.equals(loginReq.getSmsCode())) {
-            sendError(ResultCode.BUSINESS_FAILED, "验证码错误");
-            return;
+            return new LoginResp(ResultCode.BUSINESS_FAILED,"验证码错误");
         }
 
         //查找手机号是否存在
@@ -47,6 +45,7 @@ public class UserController extends BaseController {
         if (userInfo == null) {
             userInfo = new UserInfo();
             userInfo.setMobile(loginReq.getMobile());
+            userInfo.setNickname(loginReq.getMobile());
             userService.addUser(userInfo);
         }
 
@@ -59,10 +58,23 @@ public class UserController extends BaseController {
         tokenInfo.setLogintime(String.valueOf(loginTime));
         tokenService.addToken(tokenInfo);
 
-        LoginResp resp = new LoginResp();
+        LoginResp resp = new LoginResp(ResultCode.SUCCESS,"登录成功");
+
         Token token = new Token(userId, loginTime);
         resp.setToken(token);
-        sendSuccess(resp, "登录成功");
+
+        BaseUserInfo baseUserInfo = new BaseUserInfo();
+        baseUserInfo.setNickName(userInfo.getNickname());
+        baseUserInfo.setCardNumber(userInfo.getCardnumber());
+        baseUserInfo.setGender(userInfo.getGender());
+        baseUserInfo.setMobile(userInfo.getMobile());
+        baseUserInfo.setRealName(userInfo.getRealname());
+        baseUserInfo.setSignature(userInfo.getSignature());
+        baseUserInfo.setUserIcon(userInfo.getUsericon());
+        resp.setUserInfo(baseUserInfo);
+
+        return  resp;
+//        sendSuccess(resp, "登录成功");
     }
 
     @RequestMapping(value = "/autoLogin")
