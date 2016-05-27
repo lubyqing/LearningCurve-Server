@@ -1,6 +1,7 @@
 package com.arthas.learningcurve.controller;
 
 import com.alibaba.fastjson.JSON;
+import com.arthas.learningcurve.common.Constant;
 import com.arthas.learningcurve.common.InitAction;
 import com.arthas.learningcurve.common.ResultCode;
 import com.arthas.learningcurve.domain.BaseResp;
@@ -8,6 +9,11 @@ import com.arthas.learningcurve.domain.GetLoginSmsReq;
 import com.arthas.learningcurve.domain.LoginReq;
 import com.arthas.learningcurve.service.SmsService;
 import com.arthas.learningcurve.service.UserService;
+import com.taobao.api.ApiException;
+import com.taobao.api.DefaultTaobaoClient;
+import com.taobao.api.TaobaoClient;
+import com.taobao.api.request.AlibabaAliqinFcSmsNumSendRequest;
+import com.taobao.api.response.AlibabaAliqinFcSmsNumSendResponse;
 import org.apache.commons.lang.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -38,6 +44,7 @@ public class SmsController extends BaseController {
         smsService.sendLoginSms(req.getMobile());
 
         //todo Here is Successful,for print message,call sendError
+        sendSms(req.getMobile());
 
         return new BaseResp(ResultCode.SUCCESS,"验证码发送成功，手机号："
                 + req.getMobile()
@@ -51,6 +58,26 @@ public class SmsController extends BaseController {
 //        ;
 
 
+    }
+
+    private void sendSms(String phoneNumber) {
+        TaobaoClient
+                client = new DefaultTaobaoClient(Constant.TAOBAO_SERVER_URL, Constant.TAOBAO_APP_KEY, Constant.TAOBAO_APP_SECRET);
+        AlibabaAliqinFcSmsNumSendRequest
+                req = new AlibabaAliqinFcSmsNumSendRequest();
+        req.setSmsType("normal");
+        req.setSmsFreeSignName("学习曲线");
+        req.setSmsParamString("{\"code\":\"1234\",\"product\":\"alidayu\"}");
+        req.setRecNum(phoneNumber);
+        req.setSmsTemplateCode("SMS_10205238");
+        AlibabaAliqinFcSmsNumSendResponse rsp = null;
+        try {
+            rsp = client.execute(req);
+        }
+        catch (ApiException e) {
+            e.printStackTrace();
+        }
+        System.out.println(rsp.getBody());
     }
 
     private boolean validateReq(GetLoginSmsReq req) {
